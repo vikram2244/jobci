@@ -1,0 +1,25 @@
+# Stage 1: Build the application
+FROM maven:3.8.5-openjdk-17 AS build
+WORKDIR /app
+
+# Copy pom.xml first to leverage Docker caching
+COPY pom.xml ./
+# Download dependencies (this layer will be cached if pom.xml doesn't change)
+RUN mvn dependency:go-offline -B
+
+# Copy source code and build
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+# Stage 2: Create the runtime image
+FROM openjdk:17.0.1-jdk-slim
+WORKDIR /app
+
+# Copy the jar file from the build stage
+COPY --from=build /app/target/careersite-0.0.1-SNAPSHOT.jar app.jar
+
+# Expose the port your application runs on
+EXPOSE 8081
+
+# Run the application
+ENTRYPOINT ["java", "-jar", "app.jar"]
