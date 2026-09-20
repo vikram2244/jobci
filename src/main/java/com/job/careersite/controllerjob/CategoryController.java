@@ -17,6 +17,7 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
     
+    
     @GetMapping("/categories")
     public ResponseEntity<List<Map<String, Object>>> getAllCategories() {
         List<Map<String, Object>> categories = categoryService.getAllCategoriesWithJobCount();
